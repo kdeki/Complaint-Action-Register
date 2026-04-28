@@ -1,0 +1,873 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Street Light Complaint & Action Register</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Source+Sans+3:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --navy:    #0B1F3A;
+    --ink:     #1A2E4A;
+    --steel:   #2E5F8A;
+    --sky:     #4A90C4;
+    --ice:     #D6E8F5;
+    --frost:   #EBF4FA;
+    --white:   #FFFFFF;
+    --gold:    #C9A84C;
+    --gold-lt: #F5E9C8;
+    --line:    #B8D4E8;
+    --muted:   #6B8BA4;
+    --text:    #1A2E4A;
+    --red:     #C0392B;
+    --red-lt:  #FDECEA;
+    --amber:   #D4810A;
+    --amber-lt:#FEF3E0;
+    --green:   #1E7E47;
+    --green-lt:#E6F5EC;
+    --blue-lt: #E3F0FB;
+    --gray-lt: #F0F0F0;
+    --radius:  6px;
+    --shadow:  0 2px 12px rgba(11,31,58,0.10);
+    --shadow-lg: 0 8px 32px rgba(11,31,58,0.14);
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: "Source Sans 3", sans-serif;
+    background: #EBF0F7;
+    color: var(--text);
+    min-height: 100vh;
+    font-size: 13px;
+  }
+
+  /* ── Header ─────────────────────────────────────────── */
+  .page-header {
+    background: linear-gradient(135deg, var(--navy) 0%, var(--ink) 60%, var(--steel) 100%);
+    padding: 28px 40px 22px;
+    display: flex; align-items: flex-start; justify-content: space-between;
+    box-shadow: 0 4px 20px rgba(11,31,58,0.30);
+    position: relative; overflow: hidden;
+  }
+  .page-header::before {
+    content:""; position:absolute; top:-60px; right:-60px;
+    width:240px; height:240px; border-radius:50%;
+    background: rgba(255,255,255,0.04); pointer-events:none;
+  }
+  .page-header::after {
+    content:""; position:absolute; bottom:-40px; left:30%;
+    width:160px; height:160px; border-radius:50%;
+    background: rgba(74,144,196,0.10); pointer-events:none;
+  }
+  .header-brand { display:flex; align-items:center; gap:14px; }
+  .brand-icon {
+    width:52px; height:52px; background:var(--gold);
+    border-radius:50%; display:flex; align-items:center; justify-content:center;
+    font-size:24px; flex-shrink:0;
+    box-shadow: 0 0 0 4px rgba(201,168,76,0.25);
+  }
+  .brand-text h1 {
+    font-family:"Playfair Display", serif;
+    font-size:22px; font-weight:700; color:var(--white);
+    line-height:1.2; letter-spacing:0.02em;
+  }
+  .brand-text p { font-size:11px; color:rgba(255,255,255,0.60); margin-top:2px; letter-spacing:0.06em; text-transform:uppercase; }
+  .header-meta { text-align:right; }
+  .header-meta .dept-label { font-size:10px; color:rgba(255,255,255,0.50); text-transform:uppercase; letter-spacing:0.08em; }
+  .header-meta input {
+    background:rgba(255,255,255,0.10); border:1px solid rgba(255,255,255,0.20);
+    color:var(--white); border-radius:4px; padding:4px 10px; font-size:12px;
+    font-family:"Source Sans 3",sans-serif; margin-top:4px; width:220px;
+    text-align:center;
+  }
+  .header-meta input::placeholder { color:rgba(255,255,255,0.35); }
+  .header-meta input:focus { outline:none; border-color:var(--gold); }
+
+  /* ── Top controls ───────────────────────────────────── */
+  .controls-bar {
+    background:var(--white); border-bottom:1px solid var(--line);
+    padding:12px 40px; display:flex; align-items:center; gap:12px;
+    flex-wrap:wrap; box-shadow: var(--shadow);
+  }
+  .tab-btn {
+    padding:7px 18px; border-radius:20px; border:1.5px solid var(--line);
+    background:transparent; cursor:pointer; font-family:"Source Sans 3",sans-serif;
+    font-size:12px; font-weight:600; color:var(--muted); transition:all .2s;
+    letter-spacing:0.03em;
+  }
+  .tab-btn.active, .tab-btn:hover {
+    background:var(--navy); border-color:var(--navy); color:var(--white);
+  }
+  .spacer { flex:1; }
+  .action-btn {
+    padding:7px 16px; border-radius:5px; border:none; cursor:pointer;
+    font-family:"Source Sans 3",sans-serif; font-size:12px; font-weight:600;
+    display:flex; align-items:center; gap:6px; transition:all .18s;
+  }
+  .btn-primary { background:var(--steel); color:var(--white); }
+  .btn-primary:hover { background:var(--navy); }
+  .btn-gold { background:var(--gold); color:var(--white); }
+  .btn-gold:hover { background:#b8942e; }
+  .btn-outline { background:transparent; border:1.5px solid var(--line); color:var(--ink); }
+  .btn-outline:hover { border-color:var(--steel); color:var(--steel); }
+
+  /* ── Main layout ────────────────────────────────────── */
+  .main { padding:24px 40px 60px; max-width:1600px; margin:0 auto; }
+
+  /* ── Summary cards ──────────────────────────────────── */
+  .summary-cards { display:grid; grid-template-columns:repeat(5,1fr); gap:14px; margin-bottom:24px; }
+  .card {
+    background:var(--white); border-radius:var(--radius);
+    padding:16px 18px; box-shadow:var(--shadow);
+    border-top:3px solid var(--steel); display:flex; flex-direction:column; gap:4px;
+    transition: transform .18s, box-shadow .18s;
+  }
+  .card:hover { transform:translateY(-2px); box-shadow:var(--shadow-lg); }
+  .card.red   { border-color:var(--red);   }
+  .card.amber { border-color:var(--amber); }
+  .card.green { border-color:var(--green); }
+  .card.gold  { border-color:var(--gold);  }
+  .card-label { font-size:10px; font-weight:600; color:var(--muted); text-transform:uppercase; letter-spacing:0.08em; }
+  .card-value { font-family:"Playfair Display",serif; font-size:30px; font-weight:600; color:var(--navy); line-height:1; }
+  .card.red   .card-value { color:var(--red);   }
+  .card.amber .card-value { color:var(--amber); }
+  .card.green .card-value { color:var(--green); }
+  .card.gold  .card-value { color:var(--gold);  }
+  .card-sub { font-size:10px; color:var(--muted); margin-top:2px; }
+
+  /* ── Section header ─────────────────────────────────── */
+  .section-head {
+    display:flex; align-items:center; justify-content:space-between;
+    margin-bottom:14px;
+  }
+  .section-title {
+    font-family:"Playfair Display",serif; font-size:17px; color:var(--navy);
+    display:flex; align-items:center; gap:8px;
+  }
+  .section-title::before {
+    content:""; display:inline-block; width:4px; height:20px;
+    background:var(--gold); border-radius:2px;
+  }
+
+  /* ── Table ──────────────────────────────────────────── */
+  .table-wrap {
+    background:var(--white); border-radius:var(--radius);
+    box-shadow:var(--shadow); overflow:hidden;
+  }
+  .table-scroll { overflow-x:auto; }
+  table { width:100%; border-collapse:collapse; min-width:1400px; font-size:12px; }
+  thead tr { background:var(--navy); }
+  thead th {
+    padding:11px 10px; color:var(--white); font-weight:600;
+    font-size:10.5px; letter-spacing:0.05em; text-align:left;
+    border-right:1px solid rgba(255,255,255,0.08); white-space:nowrap;
+    position:sticky; top:0; z-index:2;
+  }
+  thead th:first-child { width:42px; text-align:center; }
+  tbody tr { border-bottom:1px solid var(--frost); transition:background .12s; }
+  tbody tr:hover { background:var(--frost); }
+  tbody tr:nth-child(even) { background:#F7FAFD; }
+  tbody tr:nth-child(even):hover { background:var(--frost); }
+  tbody td { padding:7px 10px; vertical-align:middle; }
+  tbody td:first-child { text-align:center; color:var(--muted); font-size:11px; font-weight:600; }
+
+  /* ── Inputs inside table ────────────────────────────── */
+  td input[type="text"], td input[type="tel"], td select, td textarea {
+    width:100%; border:none; background:transparent;
+    font-family:"Source Sans 3",sans-serif; font-size:12px; color:var(--text);
+    padding:2px 0; outline:none; resize:none;
+  }
+  td input[type="text"]:focus, td input[type="tel"]:focus,
+  td select:focus, td textarea:focus {
+    background:var(--frost); border-radius:3px; padding:2px 4px;
+    box-shadow:inset 0 0 0 1.5px var(--sky);
+  }
+  td textarea { min-height:32px; overflow:hidden; line-height:1.4; }
+
+  /* ── Date input (calendar popup) ───────────────────── */
+  .date-wrapper { position:relative; display:flex; align-items:center; min-width:110px; }
+  .date-display {
+    flex:1; font-size:12px; color:var(--text); cursor:pointer;
+    padding:2px 4px; border-radius:3px; min-height:22px;
+    display:flex; align-items:center;
+    white-space:nowrap;
+  }
+  .date-display:empty::before { content:"Select date"; color:var(--muted); font-style:italic; }
+  .date-display:hover { background:var(--frost); }
+  .cal-trigger {
+    width:20px; height:20px; background:none; border:none; cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
+    color:var(--muted); border-radius:3px; flex-shrink:0;
+    font-size:13px; transition:color .15s, background .15s;
+  }
+  .cal-trigger:hover { background:var(--ice); color:var(--steel); }
+
+  /* ── Calendar popup ─────────────────────────────────── */
+  .cal-popup {
+    position:fixed; z-index:9999; background:var(--white);
+    border-radius:10px; box-shadow:0 8px 40px rgba(11,31,58,0.22);
+    padding:0; overflow:hidden; min-width:270px;
+    border:1px solid var(--line); display:none;
+    animation: popIn .15s ease;
+  }
+  @keyframes popIn {
+    from { opacity:0; transform:scale(0.96) translateY(-4px); }
+    to   { opacity:1; transform:scale(1)    translateY(0); }
+  }
+  .cal-popup.open { display:block; }
+  .cal-header {
+    background:var(--navy); padding:14px 16px;
+    display:flex; align-items:center; justify-content:space-between;
+  }
+  .cal-nav { background:none; border:none; color:rgba(255,255,255,0.7);
+    cursor:pointer; font-size:16px; border-radius:4px; width:28px; height:28px;
+    display:flex; align-items:center; justify-content:center; transition:all .15s; }
+  .cal-nav:hover { background:rgba(255,255,255,0.12); color:var(--white); }
+  .cal-month-year {
+    font-family:"Playfair Display",serif; color:var(--white);
+    font-size:14px; font-weight:600; cursor:pointer; user-select:none;
+    letter-spacing:0.02em;
+  }
+  .cal-month-year:hover { color:var(--gold); }
+  .cal-body { padding:12px 14px 14px; }
+  .cal-weekdays { display:grid; grid-template-columns:repeat(7,1fr); margin-bottom:6px; }
+  .cal-weekdays span {
+    text-align:center; font-size:10px; font-weight:700;
+    color:var(--muted); letter-spacing:0.06em; padding:4px 0;
+  }
+  .cal-days { display:grid; grid-template-columns:repeat(7,1fr); gap:2px; }
+  .cal-day {
+    aspect-ratio:1; display:flex; align-items:center; justify-content:center;
+    font-size:12px; border-radius:50%; cursor:pointer; border:none;
+    background:none; color:var(--text); font-family:"Source Sans 3",sans-serif;
+    transition:all .12s; font-weight:400;
+  }
+  .cal-day:hover:not(.empty):not(.disabled) { background:var(--ice); color:var(--navy); font-weight:600; }
+  .cal-day.other-month { color:#C5D5E0; }
+  .cal-day.today { font-weight:700; color:var(--steel); }
+  .cal-day.today::after {
+    content:""; position:absolute; bottom:3px; left:50%; transform:translateX(-50%);
+    width:4px; height:4px; background:var(--gold); border-radius:50%;
+  }
+  .cal-day.today { position:relative; }
+  .cal-day.selected { background:var(--navy); color:var(--white); font-weight:600; }
+  .cal-day.selected:hover { background:var(--steel); }
+  .cal-day.empty { cursor:default; }
+  .cal-footer {
+    border-top:1px solid var(--frost); padding:8px 14px;
+    display:flex; justify-content:space-between; align-items:center;
+  }
+  .cal-today-btn {
+    font-size:11px; color:var(--steel); background:none; border:none;
+    cursor:pointer; font-family:"Source Sans 3",sans-serif; font-weight:600;
+    padding:4px 8px; border-radius:4px; transition:background .15s;
+  }
+  .cal-today-btn:hover { background:var(--frost); }
+  .cal-clear-btn {
+    font-size:11px; color:var(--muted); background:none; border:none;
+    cursor:pointer; font-family:"Source Sans 3",sans-serif;
+    padding:4px 8px; border-radius:4px; transition:background .15s;
+  }
+  .cal-clear-btn:hover { background:var(--frost); color:var(--red); }
+
+  /* ── Status badges ──────────────────────────────────── */
+  select.status-sel { font-weight:600; border-radius:12px; padding:3px 8px; text-align:center; cursor:pointer; }
+  .st-pending    { background:var(--red-lt);   color:var(--red);   }
+  .st-progress   { background:var(--amber-lt); color:var(--amber); }
+  .st-completed  { background:var(--green-lt); color:var(--green); }
+  .st-hold       { background:var(--blue-lt);  color:var(--steel); }
+  .st-cancelled  { background:var(--gray-lt);  color:#666;         }
+
+  select.priority-sel { font-weight:600; border-radius:12px; padding:3px 8px; text-align:center; cursor:pointer; }
+  .pr-high   { background:var(--red-lt);   color:var(--red);   }
+  .pr-medium { background:var(--amber-lt); color:var(--amber); }
+  .pr-low    { background:var(--green-lt); color:var(--green); }
+
+  /* ── Add row button ─────────────────────────────────── */
+  .add-row-bar {
+    padding:10px 16px; border-top:1px solid var(--frost);
+    display:flex; align-items:center;
+  }
+  .add-row-btn {
+    background:none; border:1.5px dashed var(--line); color:var(--muted);
+    border-radius:5px; padding:7px 18px; cursor:pointer;
+    font-family:"Source Sans 3",sans-serif; font-size:12px; font-weight:600;
+    display:flex; align-items:center; gap:6px; transition:all .18s;
+  }
+  .add-row-btn:hover { border-color:var(--steel); color:var(--steel); background:var(--frost); }
+
+  /* ── Legend ─────────────────────────────────────────── */
+  .legend-row { display:flex; align-items:center; gap:16px; margin-top:18px; flex-wrap:wrap; }
+  .legend-item { display:flex; align-items:center; gap:6px; font-size:11px; color:var(--muted); }
+  .legend-dot { width:10px; height:10px; border-radius:50%; }
+
+  /* ── Print ──────────────────────────────────────────── */
+  @media print {
+    .controls-bar, .action-btn, .tab-btn, .add-row-btn,
+    .cal-trigger, .btn-gold, .btn-outline, .btn-primary { display:none !important; }
+    body { background:white; font-size:11px; }
+    .main { padding:0; }
+    .page-header { print-color-adjust:exact; -webkit-print-color-adjust:exact; }
+    thead { print-color-adjust:exact; -webkit-print-color-adjust:exact; }
+  }
+</style>
+</head>
+<body>
+
+<!-- PAGE HEADER -->
+<div class="page-header">
+  <div class="header-brand">
+    <div class="brand-icon">💡</div>
+    <div class="brand-text">
+      <h1>Street Light Complaint &amp; Action Register</h1>
+      <p>Public Works Department &nbsp;|&nbsp; Infrastructure Maintenance Division</p>
+    </div>
+  </div>
+  <div class="header-meta">
+    <div class="dept-label">Department / Division</div>
+    <input type="text" id="dept-input" placeholder="Enter department name…"/>
+    <div style="margin-top:8px; display:flex; gap:8px; justify-content:flex-end;">
+      <input type="text" id="month-input" placeholder="Month" style="width:100px;"/>
+      <input type="text" id="year-input"  placeholder="Year"  style="width:70px;"/>
+    </div>
+  </div>
+</div>
+
+<!-- CONTROLS BAR -->
+<div class="controls-bar">
+  <button class="tab-btn active" onclick="switchTab('log',this)">📋 Daily Log</button>
+  <button class="tab-btn" onclick="switchTab('summary',this)">📊 Summary Dashboard</button>
+  <button class="tab-btn" onclick="switchTab('monthly',this)">📅 Monthly Report</button>
+  <div class="spacer"></div>
+  <button class="action-btn btn-outline" onclick="addRow()">＋ Add Row</button>
+  <button class="action-btn btn-primary" onclick="window.print()">🖨 Print</button>
+  <button class="action-btn btn-gold" onclick="exportCSV()">⬇ Export CSV</button>
+</div>
+
+<!-- MAIN CONTENT -->
+<div class="main">
+
+  <!-- TAB: DAILY LOG -->
+  <div id="tab-log">
+    <!-- Summary cards -->
+    <div class="summary-cards">
+      <div class="card">
+        <div class="card-label">Total Complaints</div>
+        <div class="card-value" id="c-total">0</div>
+        <div class="card-sub">Logged today</div>
+      </div>
+      <div class="card red">
+        <div class="card-label">Pending</div>
+        <div class="card-value" id="c-pending">0</div>
+        <div class="card-sub">Awaiting action</div>
+      </div>
+      <div class="card amber">
+        <div class="card-label">In Progress</div>
+        <div class="card-value" id="c-progress">0</div>
+        <div class="card-sub">Under repair</div>
+      </div>
+      <div class="card green">
+        <div class="card-label">Completed</div>
+        <div class="card-value" id="c-completed">0</div>
+        <div class="card-sub">Resolved</div>
+      </div>
+      <div class="card gold">
+        <div class="card-label">High Priority</div>
+        <div class="card-value" id="c-high">0</div>
+        <div class="card-sub">Urgent attention</div>
+      </div>
+    </div>
+
+    <!-- Table -->
+    <div class="section-head">
+      <div class="section-title">Daily Complaint Log</div>
+      <div style="font-size:11px; color:var(--muted);">Click any cell to edit &nbsp;|&nbsp; Click 📅 to pick a date</div>
+    </div>
+
+    <div class="table-wrap">
+      <div class="table-scroll">
+        <table id="log-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Date Received</th>
+              <th>Time</th>
+              <th>Complaint ID</th>
+              <th>Reported By</th>
+              <th>Contact No.</th>
+              <th>Mode</th>
+              <th>Location / Area</th>
+              <th>Street / Road</th>
+              <th>Pole / Light ID</th>
+              <th>GPS Coordinates</th>
+              <th>Fault Type</th>
+              <th>Priority</th>
+              <th>Assigned To</th>
+              <th>Date Assigned</th>
+              <th>Date Inspected</th>
+              <th>Action Taken</th>
+              <th>Parts / Material</th>
+              <th>Date Completed</th>
+              <th>Status</th>
+              <th>Remarks</th>
+            </tr>
+          </thead>
+          <tbody id="log-body">
+          </tbody>
+        </table>
+      </div>
+      <div class="add-row-bar">
+        <button class="add-row-btn" onclick="addRow()">＋ Add New Complaint Row</button>
+      </div>
+    </div>
+
+    <div class="legend-row">
+      <span style="font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;">Status:</span>
+      <span class="legend-item"><span class="legend-dot" style="background:var(--red)"></span>Pending</span>
+      <span class="legend-item"><span class="legend-dot" style="background:var(--amber)"></span>In Progress</span>
+      <span class="legend-item"><span class="legend-dot" style="background:var(--green)"></span>Completed</span>
+      <span class="legend-item"><span class="legend-dot" style="background:var(--sky)"></span>On Hold</span>
+      <span class="legend-item"><span class="legend-dot" style="background:#999"></span>Cancelled</span>
+    </div>
+  </div>
+
+  <!-- TAB: SUMMARY DASHBOARD -->
+  <div id="tab-summary" style="display:none;">
+    <div class="section-head"><div class="section-title">Summary Dashboard</div></div>
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px;">
+
+      <div class="table-wrap" style="padding:20px;">
+        <div style="font-family:'Playfair Display',serif;font-size:14px;color:var(--navy);margin-bottom:14px;font-weight:600;">Key Performance Indicators</div>
+        <table style="min-width:0;width:100%;">
+          <thead><tr>
+            <th style="background:var(--navy);padding:9px 12px;font-size:10.5px;">Metric</th>
+            <th style="background:var(--navy);padding:9px 12px;font-size:10.5px;text-align:right;">Count</th>
+            <th style="background:var(--navy);padding:9px 12px;font-size:10.5px;text-align:right;">% of Total</th>
+          </tr></thead>
+          <tbody id="kpi-body"></tbody>
+        </table>
+      </div>
+
+      <div class="table-wrap" style="padding:20px;">
+        <div style="font-family:'Playfair Display',serif;font-size:14px;color:var(--navy);margin-bottom:14px;font-weight:600;">Fault Type Breakdown</div>
+        <table style="min-width:0;width:100%;">
+          <thead><tr>
+            <th style="background:var(--navy);padding:9px 12px;font-size:10.5px;">Fault Type</th>
+            <th style="background:var(--navy);padding:9px 12px;font-size:10.5px;text-align:right;">Count</th>
+            <th style="background:var(--navy);padding:9px 12px;font-size:10.5px;text-align:right;">%</th>
+          </tr></thead>
+          <tbody id="fault-body"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="table-wrap" style="margin-top:20px; padding:20px;">
+      <div style="font-family:'Playfair Display',serif;font-size:14px;color:var(--navy);margin-bottom:14px;font-weight:600;">Approval &amp; Signatures</div>
+      <table style="min-width:0;width:100%;">
+        <thead><tr>
+          <th style="background:var(--navy);padding:9px 12px;font-size:10.5px;">Role</th>
+          <th style="background:var(--navy);padding:9px 12px;font-size:10.5px;">Name</th>
+          <th style="background:var(--navy);padding:9px 12px;font-size:10.5px;">Signature</th>
+          <th style="background:var(--navy);padding:9px 12px;font-size:10.5px;">Date</th>
+        </tr></thead>
+        <tbody>
+          <tr><td style="padding:10px 12px;border-bottom:1px solid var(--frost);font-weight:600;">Prepared By</td><td style="padding:10px 12px;border-bottom:1px solid var(--frost);"><input type="text" placeholder="Full name…" style="border:none;border-bottom:1px solid var(--line);width:100%;font-family:'Source Sans 3',sans-serif;font-size:12px;padding:2px 0;outline:none;"/></td><td style="padding:10px 12px;border-bottom:1px solid var(--frost);color:var(--muted);font-size:11px;font-style:italic;">___________________________</td><td class="date-cell" style="padding:10px 12px;border-bottom:1px solid var(--frost);"></td></tr>
+          <tr><td style="padding:10px 12px;border-bottom:1px solid var(--frost);font-weight:600;">Checked By (Supervisor)</td><td style="padding:10px 12px;border-bottom:1px solid var(--frost);"><input type="text" placeholder="Full name…" style="border:none;border-bottom:1px solid var(--line);width:100%;font-family:'Source Sans 3',sans-serif;font-size:12px;padding:2px 0;outline:none;"/></td><td style="padding:10px 12px;border-bottom:1px solid var(--frost);color:var(--muted);font-size:11px;font-style:italic;">___________________________</td><td class="date-cell" style="padding:10px 12px;border-bottom:1px solid var(--frost);"></td></tr>
+          <tr><td style="padding:10px 12px;font-weight:600;">Approved By</td><td style="padding:10px 12px;"><input type="text" placeholder="Full name…" style="border:none;border-bottom:1px solid var(--line);width:100%;font-family:'Source Sans 3',sans-serif;font-size:12px;padding:2px 0;outline:none;"/></td><td style="padding:10px 12px;color:var(--muted);font-size:11px;font-style:italic;">___________________________</td><td class="date-cell" style="padding:10px 12px;"></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- TAB: MONTHLY REPORT -->
+  <div id="tab-monthly" style="display:none;">
+    <div class="section-head"><div class="section-title">Monthly Summary Report</div></div>
+    <div class="table-wrap" style="padding:20px;">
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:20px;">
+        <div><div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;">Month</div><input type="text" style="border:1px solid var(--line);border-radius:4px;padding:6px 10px;width:100%;font-size:12px;font-family:'Source Sans 3',sans-serif;" placeholder="e.g. April 2026"/></div>
+        <div><div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;">Division / Area</div><input type="text" style="border:1px solid var(--line);border-radius:4px;padding:6px 10px;width:100%;font-size:12px;font-family:'Source Sans 3',sans-serif;" placeholder="Division name…"/></div>
+        <div><div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;">Date of Report</div><div class="date-cell" style="border:1px solid var(--line);border-radius:4px;padding:6px 10px;"></div></div>
+      </div>
+
+      <table style="min-width:0;width:100%;margin-bottom:20px;">
+        <thead><tr>
+          <th style="background:var(--navy);padding:9px 12px;font-size:10.5px;">Metric</th>
+          <th style="background:var(--navy);padding:9px 12px;font-size:10.5px;text-align:center;">Week 1</th>
+          <th style="background:var(--navy);padding:9px 12px;font-size:10.5px;text-align:center;">Week 2</th>
+          <th style="background:var(--navy);padding:9px 12px;font-size:10.5px;text-align:center;">Week 3</th>
+          <th style="background:var(--navy);padding:9px 12px;font-size:10.5px;text-align:center;">Week 4</th>
+          <th style="background:var(--navy);padding:9px 12px;font-size:10.5px;text-align:center;">Week 5</th>
+          <th style="background:var(--gold);padding:9px 12px;font-size:10.5px;text-align:center;">Total</th>
+        </tr></thead>
+        <tbody id="monthly-body"></tbody>
+      </table>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+        <div>
+          <div style="font-size:11px;font-weight:600;color:var(--navy);margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em;">Pending Issues</div>
+          <textarea rows="3" style="width:100%;border:1px solid var(--line);border-radius:4px;padding:8px;font-size:12px;font-family:'Source Sans 3',sans-serif;resize:vertical;" placeholder="List pending complaints or issues…"></textarea>
+        </div>
+        <div>
+          <div style="font-size:11px;font-weight:600;color:var(--navy);margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em;">Major Issues Identified</div>
+          <textarea rows="3" style="width:100%;border:1px solid var(--line);border-radius:4px;padding:8px;font-size:12px;font-family:'Source Sans 3',sans-serif;resize:vertical;" placeholder="Recurring faults, material shortages, etc.…"></textarea>
+        </div>
+        <div>
+          <div style="font-size:11px;font-weight:600;color:var(--navy);margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em;">Remarks / Notes</div>
+          <textarea rows="3" style="width:100%;border:1px solid var(--line);border-radius:4px;padding:8px;font-size:12px;font-family:'Source Sans 3',sans-serif;resize:vertical;" placeholder="Any additional comments…"></textarea>
+        </div>
+        <div>
+          <div style="font-size:11px;font-weight:600;color:var(--navy);margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em;">Recommendations</div>
+          <textarea rows="3" style="width:100%;border:1px solid var(--line);border-radius:4px;padding:8px;font-size:12px;font-family:'Source Sans 3',sans-serif;resize:vertical;" placeholder="Actions recommended for next month…"></textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /main -->
+
+<!-- CALENDAR POPUP -->
+<div class="cal-popup" id="calendar">
+  <div class="cal-header">
+    <button class="cal-nav" id="cal-prev">&#8249;</button>
+    <div class="cal-month-year" id="cal-month-year" onclick="toggleYearPicker()"></div>
+    <button class="cal-nav" id="cal-next">&#8250;</button>
+  </div>
+  <div class="cal-body">
+    <div class="cal-weekdays">
+      <span>SU</span><span>MO</span><span>TU</span><span>WE</span>
+      <span>TH</span><span>FR</span><span>SA</span>
+    </div>
+    <div class="cal-days" id="cal-days"></div>
+  </div>
+  <div class="cal-footer">
+    <button class="cal-today-btn" onclick="selectToday()">Today</button>
+    <button class="cal-clear-btn" onclick="clearDate()">Clear</button>
+  </div>
+</div>
+
+<script>
+// ── Calendar engine ───────────────────────────────────────────────────────
+const cal = document.getElementById("calendar");
+let calTarget = null, calYear = 0, calMonth = 0;
+const months = ["January","February","March","April","May","June",
+                 "July","August","September","October","November","December"];
+
+function openCal(wrapper) {
+  calTarget = wrapper;
+  const stored = wrapper.dataset.iso;
+  const now = new Date();
+  if (stored) { const d = new Date(stored); calYear = d.getFullYear(); calMonth = d.getMonth(); }
+  else { calYear = now.getFullYear(); calMonth = now.getMonth(); }
+  renderCal();
+
+  // Position near trigger button
+  const btn = wrapper.querySelector(".cal-trigger");
+  const rect = btn.getBoundingClientRect();
+  const calW = 270, calH = 300;
+  let top = rect.bottom + 4, left = rect.left;
+  if (left + calW > window.innerWidth) left = rect.right - calW;
+  if (top + calH > window.innerHeight) top = rect.top - calH - 4;
+  cal.style.top  = top  + "px";
+  cal.style.left = left + "px";
+  cal.classList.add("open");
+}
+
+function renderCal() {
+  document.getElementById("cal-month-year").textContent = months[calMonth] + "  " + calYear;
+  const days = document.getElementById("cal-days");
+  days.innerHTML = "";
+  const first = new Date(calYear, calMonth, 1).getDay();
+  const last  = new Date(calYear, calMonth+1, 0).getDate();
+  const prevLast = new Date(calYear, calMonth, 0).getDate();
+  const today = new Date();
+  const selIso = calTarget ? calTarget.dataset.iso : null;
+
+  // Previous month tail
+  for (let i = first-1; i >= 0; i--) {
+    const b = dayBtn(prevLast-i, "other-month"); days.appendChild(b);
+  }
+  // Current month
+  for (let d = 1; d <= last; d++) {
+    const iso = calYear+"-"+String(calMonth+1).padStart(2,"0")+"-"+String(d).padStart(2,"0");
+    const isToday = (d===today.getDate() && calMonth===today.getMonth() && calYear===today.getFullYear());
+    const isSel   = (iso === selIso);
+    const b = dayBtn(d, (isToday?"today":"") + (isSel?" selected":""));
+    b.onclick = () => pickDate(iso);
+    days.appendChild(b);
+  }
+  // Next month head
+  const cells = first + last;
+  const rem = cells % 7 === 0 ? 0 : 7 - (cells % 7);
+  for (let d = 1; d <= rem; d++) {
+    days.appendChild(dayBtn(d, "other-month"));
+  }
+}
+
+function dayBtn(num, cls) {
+  const b = document.createElement("button");
+  b.className = "cal-day " + cls;
+  b.textContent = num;
+  return b;
+}
+
+function pickDate(iso) {
+  if (!calTarget) return;
+  calTarget.dataset.iso = iso;
+  const [y,m,d] = iso.split("-");
+  calTarget.querySelector(".date-display").textContent = d+"/"+m+"/"+y;
+  cal.classList.remove("open");
+  calTarget = null;
+  updateSummary();
+}
+
+function selectToday() {
+  const t = new Date();
+  const iso = t.getFullYear()+"-"+String(t.getMonth()+1).padStart(2,"0")+"-"+String(t.getDate()).padStart(2,"0");
+  pickDate(iso);
+}
+
+function clearDate() {
+  if (!calTarget) return;
+  calTarget.dataset.iso = "";
+  calTarget.querySelector(".date-display").textContent = "";
+  cal.classList.remove("open");
+  calTarget = null;
+  updateSummary();
+}
+
+function toggleYearPicker() {
+  const y = parseInt(prompt("Enter year:", calYear));
+  if (!isNaN(y) && y > 1900 && y < 2100) { calYear = y; renderCal(); }
+}
+
+document.getElementById("cal-prev").onclick = () => { calMonth--; if(calMonth<0){calMonth=11;calYear--;} renderCal(); };
+document.getElementById("cal-next").onclick = () => { calMonth++; if(calMonth>11){calMonth=0;calYear++;} renderCal(); };
+
+document.addEventListener("click", e => {
+  if (!cal.contains(e.target) && !e.target.closest(".date-wrapper")) {
+    cal.classList.remove("open");
+  }
+});
+
+// ── Date cell builder ─────────────────────────────────────────────────────
+function makeDateCell(td) {
+  td.innerHTML = "";
+  const wrap = document.createElement("div");
+  wrap.className = "date-wrapper";
+  wrap.dataset.iso = "";
+
+  const display = document.createElement("div");
+  display.className = "date-display";
+  display.title = "Click 📅 to open calendar";
+
+  const btn = document.createElement("button");
+  btn.className = "cal-trigger";
+  btn.innerHTML = "📅";
+  btn.title = "Pick a date";
+  btn.onclick = (e) => { e.stopPropagation(); openCal(wrap); };
+
+  wrap.appendChild(display);
+  wrap.appendChild(btn);
+  td.appendChild(wrap);
+  return wrap;
+}
+
+// ── Build date cells in approval section ─────────────────────────────────
+document.querySelectorAll(".date-cell").forEach(td => makeDateCell(td));
+
+// ── Row builder ───────────────────────────────────────────────────────────
+let rowCount = 0;
+function addRow() {
+  rowCount++;
+  const tbody = document.getElementById("log-body");
+  const tr = document.createElement("tr");
+
+  const cols = [
+    {type:"num",  val:rowCount},                              // 1 #
+    {type:"date"},                                            // 2 Date Received
+    {type:"text", ph:"HH:MM",    w:"80px"},                  // 3 Time
+    {type:"text", ph:"SL-2026-"+String(rowCount).padStart(3,"0"), w:"110px"}, // 4 ID
+    {type:"text", ph:"Full name"},                            // 5 Reported By
+    {type:"tel",  ph:"+XXX XXXX XXXX", w:"120px"},           // 6 Contact
+    {type:"sel",  opts:["","Call","App","Email","Walk-in","Other"], cls:""},     // 7 Mode
+    {type:"text", ph:"Area / ward"},                         // 8 Location
+    {type:"text", ph:"Street name"},                         // 9 Street
+    {type:"text", ph:"Pole ID"},                             // 10 Pole ID
+    {type:"text", ph:"Lat, Long"},                           // 11 GPS
+    {type:"sel",  opts:["","Light Not Working","Dim Light","Flickering","Damaged Pole","Damaged Wire","Vandalism","Other"], cls:""},  // 12 Fault
+    {type:"sel",  opts:["","High","Medium","Low"],           cls:"priority-sel", cmap:{"High":"pr-high","Medium":"pr-medium","Low":"pr-low"}},   // 13 Priority
+    {type:"text", ph:"Technician name"},                     // 14 Assigned To
+    {type:"date"},                                           // 15 Date Assigned
+    {type:"date"},                                           // 16 Date Inspected
+    {type:"area", ph:"Describe action taken…"},             // 17 Action Taken
+    {type:"text", ph:"Parts used"},                         // 18 Parts
+    {type:"date"},                                          // 19 Date Completed
+    {type:"sel",  opts:["","Pending","In Progress","Completed","On Hold","Cancelled"],
+      cls:"status-sel", cmap:{"Pending":"st-pending","In Progress":"st-progress","Completed":"st-completed","On Hold":"st-hold","Cancelled":"st-cancelled"}}, // 20 Status
+    {type:"text", ph:"Additional notes"},                  // 21 Remarks
+  ];
+
+  cols.forEach((col, i) => {
+    const td = document.createElement("td");
+    if (col.w) td.style.minWidth = col.w;
+
+    if (col.type === "num") {
+      td.textContent = col.val;
+
+    } else if (col.type === "date") {
+      makeDateCell(td);
+
+    } else if (col.type === "text" || col.type === "tel") {
+      const inp = document.createElement("input");
+      inp.type = col.type === "tel" ? "tel" : "text";
+      inp.placeholder = col.ph || "";
+      td.appendChild(inp);
+
+    } else if (col.type === "area") {
+      const ta = document.createElement("textarea");
+      ta.placeholder = col.ph || "";
+      ta.rows = 2;
+      ta.oninput = function(){ this.style.height="auto"; this.style.height=this.scrollHeight+"px"; };
+      td.appendChild(ta);
+
+    } else if (col.type === "sel") {
+      const sel = document.createElement("select");
+      if (col.cls) sel.className = col.cls;
+      col.opts.forEach(o => {
+        const opt = document.createElement("option");
+        opt.value = o; opt.textContent = o || "— Select —";
+        sel.appendChild(opt);
+      });
+      if (col.cmap) {
+        sel.onchange = function() {
+          // Remove all color classes
+          Object.values(col.cmap).forEach(c => this.classList.remove(c));
+          if (col.cmap[this.value]) this.classList.add(col.cmap[this.value]);
+          updateSummary();
+        };
+      }
+      td.appendChild(sel);
+    }
+    tr.appendChild(td);
+  });
+
+  tbody.appendChild(tr);
+  updateSummary();
+}
+
+// ── Summary / KPI updater ─────────────────────────────────────────────────
+function updateSummary() {
+  const rows = document.querySelectorAll("#log-body tr");
+  let total=0, pending=0, progress=0, completed=0, high=0;
+  const faultMap = {};
+  const FAULTS = ["Light Not Working","Dim Light","Flickering","Damaged Pole","Damaged Wire","Vandalism","Other"];
+
+  rows.forEach(tr => {
+    const sels = tr.querySelectorAll("select");
+    let status="", fault="", priority="";
+    sels.forEach(s => {
+      const v = s.value;
+      if (["Pending","In Progress","Completed","On Hold","Cancelled"].includes(v)) status = v;
+      if (FAULTS.includes(v)) fault = v;
+      if (["High","Medium","Low"].includes(v)) priority = v;
+    });
+    if (status) {
+      total++;
+      if (status==="Pending")     pending++;
+      if (status==="In Progress") progress++;
+      if (status==="Completed")   completed++;
+    }
+    if (priority==="High") high++;
+    if (fault) faultMap[fault] = (faultMap[fault]||0)+1;
+  });
+
+  document.getElementById("c-total").textContent     = total;
+  document.getElementById("c-pending").textContent   = pending;
+  document.getElementById("c-progress").textContent  = progress;
+  document.getElementById("c-completed").textContent = completed;
+  document.getElementById("c-high").textContent      = high;
+
+  // KPI table
+  const kpiBody = document.getElementById("kpi-body");
+  const onHold = [...document.querySelectorAll("#log-body select")].filter(s=>s.value==="On Hold").length;
+  const cancelled = [...document.querySelectorAll("#log-body select")].filter(s=>s.value==="Cancelled").length;
+  const medium = [...document.querySelectorAll("#log-body select")].filter(s=>s.value==="Medium").length;
+  const low    = [...document.querySelectorAll("#log-body select")].filter(s=>s.value==="Low").length;
+  const pct = v => total ? (v/total*100).toFixed(1)+"%" : "—";
+  const kpis = [
+    ["Total Complaints Received", total, "100%"],
+    ["Completed",   completed, pct(completed)],
+    ["Pending",     pending,   pct(pending)],
+    ["In Progress", progress,  pct(progress)],
+    ["On Hold",     onHold,    pct(onHold)],
+    ["Cancelled",   cancelled, pct(cancelled)],
+    ["High Priority",   high,   pct(high)],
+    ["Medium Priority", medium, pct(medium)],
+    ["Low Priority",    low,    pct(low)],
+  ];
+  kpiBody.innerHTML = kpis.map((r,i) =>
+    `<tr style="background:${i%2?"#F7FAFD":"white"}; border-bottom:1px solid var(--frost)">
+       <td style="padding:8px 12px;font-size:12px;">${r[0]}</td>
+       <td style="padding:8px 12px;font-size:12px;text-align:right;font-weight:600;">${r[1]}</td>
+       <td style="padding:8px 12px;font-size:12px;text-align:right;color:var(--muted);">${r[2]}</td>
+     </tr>`
+  ).join("");
+
+  // Fault breakdown
+  const faultBody = document.getElementById("fault-body");
+  const fTotal = Object.values(faultMap).reduce((a,b)=>a+b,0);
+  faultBody.innerHTML = FAULTS.map((f,i) => {
+    const cnt = faultMap[f]||0;
+    const p = fTotal ? (cnt/fTotal*100).toFixed(1)+"%" : "—";
+    return `<tr style="background:${i%2?"#F7FAFD":"white"};border-bottom:1px solid var(--frost)">
+      <td style="padding:8px 12px;font-size:12px;">${f}</td>
+      <td style="padding:8px 12px;font-size:12px;text-align:right;font-weight:600;">${cnt}</td>
+      <td style="padding:8px 12px;font-size:12px;text-align:right;color:var(--muted);">${p}</td>
+    </tr>`;
+  }).join("");
+}
+
+// ── Monthly table ─────────────────────────────────────────────────────────
+const monthlyRows = [
+  "Total Complaints","Completed","Pending","In Progress","On Hold","High Priority","Medium Priority","Low Priority","Repeated Complaints"
+];
+document.getElementById("monthly-body").innerHTML = monthlyRows.map((label,i) =>
+  `<tr style="background:${i%2?"#F7FAFD":"white"};border-bottom:1px solid var(--frost)">
+    <td style="padding:8px 12px;font-size:12px;font-weight:500;">${label}</td>
+    ${[1,2,3,4,5].map(()=>`<td style="padding:8px 12px;text-align:center;"><input type="number" min="0" style="width:50px;text-align:center;border:none;border-bottom:1px solid var(--line);font-size:12px;font-family:'Source Sans 3',sans-serif;outline:none;"/></td>`).join("")}
+    <td style="padding:8px 12px;text-align:center;font-weight:700;color:var(--navy);background:var(--gold-lt);font-size:13px;">—</td>
+  </tr>`
+).join("");
+
+// ── Tab switcher ──────────────────────────────────────────────────────────
+function switchTab(tab, btn) {
+  ["log","summary","monthly"].forEach(t => {
+    document.getElementById("tab-"+t).style.display = t===tab ? "" : "none";
+  });
+  document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+  btn.classList.add("active");
+  if (tab==="summary") updateSummary();
+}
+
+// ── CSV Export ────────────────────────────────────────────────────────────
+function exportCSV() {
+  const hdrs = [...document.querySelectorAll("#log-table thead th")].map(th => '"'+th.textContent.replace(/\n/g," ").trim()+'"');
+  const rows = [...document.querySelectorAll("#log-body tr")].map(tr =>
+    [...tr.querySelectorAll("td")].map(td => {
+      const inp = td.querySelector("input,select,textarea");
+      const dw  = td.querySelector(".date-display");
+      let v = dw ? dw.textContent : (inp ? inp.value : td.textContent);
+      return '"' + v.replace(/"/g,'""') + '"';
+    }).join(",")
+  );
+  const csv = [hdrs.join(","), ...rows].join("\n");
+  const a = document.createElement("a");
+  a.href = "data:text/csv;charset=utf-8," + encodeURIComponent(csv);
+  a.download = "StreetLight_Register_" + new Date().toISOString().slice(0,10) + ".csv";
+  a.click();
+}
+
+// ── Init: add 5 blank rows ────────────────────────────────────────────────
+for (let i=0; i<5; i++) addRow();
+</script>
+</body>
+</html>
